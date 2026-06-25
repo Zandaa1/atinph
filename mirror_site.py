@@ -357,7 +357,17 @@ def fetch_asset(url: str):
     data, ctype = fetch_with_fallback(url)
     out = asset_file_path(url)
     out.parent.mkdir(parents=True, exist_ok=True)
-    if out.suffix == '.css' or 'text/css' in ctype:
+    if 'site-bundle' in out.name and out.suffix == '.js':
+        text = data.decode('utf-8', 'ignore')
+        old_pattern = '"localhost"===window.location.hostname?a.p=window.location.origin+"/":e&&e.endsWith(t)&&(a.p=e.slice(0,-8))'
+        new_pattern = 'a.p=(()=>{const cs=document.currentScript||document.querySelector(\'script[src*=\"site-bundle\"]\');const src=cs?cs.src:\"\";const idx=src.lastIndexOf(\"scripts/\");return idx>=0?src.substring(0,idx):(e&&e.endsWith(t)?e.slice(0,-8):\"/\")})()'
+        if old_pattern in text:
+            text = text.replace(old_pattern, new_pattern)
+            print("Successfully patched site-bundle.js publicPath for local environment")
+        else:
+            print("WARNING: publicPath pattern not found in site-bundle.js!", file=sys.stderr)
+        out.write_text(text, encoding='utf-8')
+    elif out.suffix == '.css' or 'text/css' in ctype:
         text = data.decode('utf-8', 'ignore')
         for ref in extract_css_urls(text):
             abs_url = normalize_url(ref, url)
@@ -372,6 +382,8 @@ def bootstrap_pages():
     initial = [ROOT_URL, urljoin(ROOT_URL, 'about'), urljoin(ROOT_URL, 'events'), urljoin(ROOT_URL, 'media'), urljoin(ROOT_URL, 'publications'), urljoin(ROOT_URL, 'contact-us'), urljoin(ROOT_URL, 'home')]
     for u in initial:
         PAGES.add(normalize_url(u, ROOT_URL))
+    cart_script = 'https://static1.squarespace.com/static/vta/5c5a519771c10ba3470d8101/scripts/floating-cart.333bd5aee1885e7af603.js'
+    ASSETS.add(normalize_url(cart_script, ROOT_URL))
 
 
 def clean_output():
