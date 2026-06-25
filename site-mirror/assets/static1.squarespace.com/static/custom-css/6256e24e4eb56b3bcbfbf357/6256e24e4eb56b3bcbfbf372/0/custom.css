@@ -1,2 +1,18 @@
+
 /*! Squarespace LESS Compiler  (less.js language v1.3.3)  */
-@font-face{font-family:'Apfel Grotezk';src:url('/fonts/ApfelGrotezk-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}h1{font-family:'Apfel Grotezk'}
+@font-face {
+  font-family: 'Apfel Grotezk';
+  src: url("../../../../../../fonts/ApfelGrotezk-Regular.woff2") format("woff2"),
+       url("../../../../../../fonts/ApfelGrotezk-Regular.woff") format("woff"),
+       url("../../../../../../fonts/ApfelGrotezk-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Apfel Grotezk';
+  src: url("../../../../../../fonts/ApfelGrotezk-Fett.woff2") format("woff2"),
+       url("../../../../../../fonts/ApfelGrotezk-Fett.woff") format("woff"),
+       url("../../../../../../fonts/ApfelGrotezk-Fett.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}h1{font-family:'Apfel Grotezk'}

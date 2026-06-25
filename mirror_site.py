@@ -26,6 +26,11 @@ ASSET_EXTENSIONS = {
 URL_RE = re.compile(r'url\(([^)]+)\)')
 IMPORT_RE = re.compile(r'@import\s+(?:url\()?\s*[\"\']?([^\"\')\s]+)')
 
+FONT_URLS = {
+    'https://static1.squarespace.com/static/6243d15262ab610548237019/t/6243e3ce79c660786d2c3f9b/1648616398626/ApfelGrotezk-Regular.woff',
+    'https://static1.squarespace.com/static/6243d15262ab610548237019/t/6243e492d39a550052f17340/1648616595008/ApfelGrotezk-Fett.woff'
+}
+
 PAGES = set()
 ASSETS = set()
 FETCHED = set()
@@ -304,7 +309,41 @@ def rewrite_css(css_text: str, css_url: str) -> str:
         new = map_url(raw, css_url, current_file)
         return m.group(0) if new is None else m.group(0).replace(raw, new, 1)
 
-    return IMPORT_RE.sub(replace_import, css_text)
+    css_text = IMPORT_RE.sub(replace_import, css_text)
+
+    if 'Apfel Grotezk' in css_text:
+        reg_woff2_rel = relative_url(current_file, OUTPUT_DIR / 'assets' / 'fonts' / 'ApfelGrotezk-Regular.woff2')
+        reg_woff_rel = relative_url(current_file, OUTPUT_DIR / 'assets' / 'fonts' / 'ApfelGrotezk-Regular.woff')
+        reg_otf_rel = relative_url(current_file, OUTPUT_DIR / 'assets' / 'fonts' / 'ApfelGrotezk-Regular.otf')
+
+        bold_woff2_rel = relative_url(current_file, OUTPUT_DIR / 'assets' / 'fonts' / 'ApfelGrotezk-Fett.woff2')
+        bold_woff_rel = relative_url(current_file, OUTPUT_DIR / 'assets' / 'fonts' / 'ApfelGrotezk-Fett.woff')
+        bold_otf_rel = relative_url(current_file, OUTPUT_DIR / 'assets' / 'fonts' / 'ApfelGrotezk-Fett.otf')
+
+        new_font_face = f"""@font-face {{
+  font-family: 'Apfel Grotezk';
+  src: url("{reg_woff2_rel}") format("woff2"),
+       url("{reg_woff_rel}") format("woff"),
+       url("{reg_otf_rel}") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}}
+@font-face {{
+  font-family: 'Apfel Grotezk';
+  src: url("{bold_woff2_rel}") format("woff2"),
+       url("{bold_woff_rel}") format("woff"),
+       url("{bold_otf_rel}") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}}"""
+        css_text = re.sub(
+            r'@font-face\s*\{\s*font-family\s*:\s*[\'"]Apfel Grotezk[\'"]\s*;[^}]*\}',
+            new_font_face,
+            css_text,
+            flags=re.I
+        )
+
+    return css_text
 
 
 def fetch_asset(url: str):
@@ -312,6 +351,9 @@ def fetch_asset(url: str):
         return
     FETCHED.add(url)
     print('ASSET', url)
+    if url in FONT_URLS:
+        print('ASSET (LOCAL FONT skipped download)', url)
+        return
     data, ctype = fetch_with_fallback(url)
     out = asset_file_path(url)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -342,8 +384,23 @@ def clean_output():
     OUTPUT_DIR.mkdir(exist_ok=True)
 
 
+def copy_local_fonts():
+    src_dir = Path(__file__).parent / 'fonts'
+    dest_dir = OUTPUT_DIR / 'assets' / 'fonts'
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    if src_dir.exists():
+        import shutil
+        for item in src_dir.iterdir():
+            if item.is_file() and item.suffix in {'.otf', '.woff', '.woff2'}:
+                shutil.copy2(item, dest_dir / item.name)
+        print(f"Copied local fonts from {src_dir} to {dest_dir}")
+    else:
+        print("WARNING: fonts directory not found!", file=sys.stderr)
+
+
 def main():
     clean_output()
+    copy_local_fonts()
     bootstrap_pages()
     while True:
         pending_pages = [u for u in sorted(PAGES) if u not in FETCHED]

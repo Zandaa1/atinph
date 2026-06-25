@@ -1,4 +1,2 @@
 https://images.squarespace-cdn.com/content/v1/6256e24e4eb56b3bcbfbf357/35c4df88-81cb-488e-bc73-61f68073d523/ATIN+-+Icon+%28Colored%29.png?format=1500w :: HTTP Error 404: Not Found
 https://images.squarespace-cdn.com/content/v1/6256e24e4eb56b3bcbfbf357/7e9e8c38-476b-4012-a964-0d238a1704ea/favicon.ico?format=100w :: HTTP Error 404: Not Found
-https://static1.squarespace.com/static/6243d15262ab610548237019/t/6243e3ce79c660786d2c3f9b/1648616398626/ApfelGrotezk-Regular.woff :: HTTP Error 404: Not Found
-https://static1.squarespace.com/static/6243d15262ab610548237019/t/6243e492d39a550052f17340/1648616595008/ApfelGrotezk-Fett.woff :: HTTP Error 404: Not Found
